@@ -39,37 +39,43 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
     lib.addIncludePath(.{ .path = "src" });
-    lib.addCSourceFiles(&.{
-        "src/pcre2_auto_possess.c",
-        "src/pcre2_chkdint.c",
-        "src/pcre2_compile.c",
-        "src/pcre2_config.c",
-        "src/pcre2_context.c",
-        "src/pcre2_convert.c",
-        "src/pcre2_dfa_match.c",
-        "src/pcre2_error.c",
-        "src/pcre2_extuni.c",
-        "src/pcre2_find_bracket.c",
-        "src/pcre2_maketables.c",
-        "src/pcre2_match.c",
-        "src/pcre2_match_data.c",
-        "src/pcre2_newline.c",
-        "src/pcre2_ord2utf.c",
-        "src/pcre2_pattern_info.c",
-        "src/pcre2_script_run.c",
-        "src/pcre2_serialize.c",
-        "src/pcre2_string_utils.c",
-        "src/pcre2_study.c",
-        "src/pcre2_substitute.c",
-        "src/pcre2_substring.c",
-        "src/pcre2_tables.c",
-        "src/pcre2_ucd.c",
-        "src/pcre2_valid_utf.c",
-        "src/pcre2_xclass.c",
-        "src/pcre2_chartables.c",
-    }, flags.items);
+    lib.addCSourceFiles(.{
+        .files = &.{
+            "src/pcre2_auto_possess.c",
+            "src/pcre2_chkdint.c",
+            "src/pcre2_compile.c",
+            "src/pcre2_config.c",
+            "src/pcre2_context.c",
+            "src/pcre2_convert.c",
+            "src/pcre2_dfa_match.c",
+            "src/pcre2_error.c",
+            "src/pcre2_extuni.c",
+            "src/pcre2_find_bracket.c",
+            "src/pcre2_maketables.c",
+            "src/pcre2_match.c",
+            "src/pcre2_match_data.c",
+            "src/pcre2_newline.c",
+            "src/pcre2_ord2utf.c",
+            "src/pcre2_pattern_info.c",
+            "src/pcre2_script_run.c",
+            "src/pcre2_serialize.c",
+            "src/pcre2_string_utils.c",
+            "src/pcre2_study.c",
+            "src/pcre2_substitute.c",
+            "src/pcre2_substring.c",
+            "src/pcre2_tables.c",
+            "src/pcre2_ucd.c",
+            "src/pcre2_valid_utf.c",
+            "src/pcre2_xclass.c",
+            "src/pcre2_chartables.c",
+        },
+        .flags = flags.items
+    });
     lib.step.dependOn(&copyFiles.step);
-    lib.installHeader("src/pcre2.h", "pcre2.h");
+    // TODO: isn't it nicer to install src/pcre2.h instead, which we "generate"
+    // above by copying? However, it doesn't work for some reason, ending up in
+    // a racy build that sometimes fails with src/pcre2.h not found.
+    lib.installHeader("src/pcre2.h.generic", "pcre2.h");
     lib.linkLibC();
     b.installArtifact(lib);
 
@@ -80,9 +86,12 @@ pub fn build(b: *std.Build) !void {
             .optimize = optimize,
         });
         exe_pcre2grep.addIncludePath(.{ .path = "src" });
-        exe_pcre2grep.addCSourceFiles(&.{
-            "src/pcre2grep.c",
-        }, flags.items);
+        exe_pcre2grep.addCSourceFiles(.{
+            .files = &.{
+                "src/pcre2grep.c",
+            },
+            .flags = flags.items
+        });
         exe_pcre2grep.linkLibrary(lib);
         exe_pcre2grep.linkLibC();
         b.installArtifact(exe_pcre2grep);
