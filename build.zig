@@ -1,24 +1,9 @@
 const std = @import("std");
 
 pub fn build(b: *std.Build) !void {
-    const target_input = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+    const target = b.standardTargetOptions(.{});
     const build_pcre2grep = b.option(bool, "build_pcre2grep", "") orelse false;
-
-    var target = target_input;
-
-    if (target_input.getOs().tag == .linux) {
-        // Zig defaults to musl libc on linux, but we want glibc as pcre2grep,
-        // pcre2test and perhaps other parts of pcre2 do not work with musl.
-        // This silently changes the target to glibc, which can be a little
-        // confusing if someone tries to explicitly target musl. It would be
-        // better if we could differentiate between target_input being
-        // explicitly set or if it has the defualt value.
-        // TODO: Add a way to check if a target is the default target or
-        //       explicitly set, if explicitly set, raise a warning and do not
-        //       set it to glibc so that the user sees the error
-        target.abi = .gnu;
-    }
 
     var flags = std.ArrayList([]const u8).init(b.allocator);
     defer flags.deinit();
