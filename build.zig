@@ -75,6 +75,7 @@ pub fn build(b: *std.Build) !void {
         .flags = &.{
             "-DHAVE_CONFIG_H",
             "-DPCRE2_STATIC",
+            "-DMAX_VARLOOKBEHIND=255",
         },
     });
 
